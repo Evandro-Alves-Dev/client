@@ -1,4 +1,4 @@
-package com.evandro.client.exceptions.handle;
+package com.evandro.client.exceptions;
 
 public class ResourceNotFoundException  extends RuntimeException{
 
