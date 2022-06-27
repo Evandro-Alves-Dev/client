@@ -1,5 +1,6 @@
 package com.evandro.client.controllers;
 
+import com.evandro.client.dto.ClientRequest;
 import com.evandro.client.dto.ClientResponse;
 import com.evandro.client.services.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/clients")
@@ -29,6 +34,12 @@ public class ClientController {
     public ResponseEntity<ClientResponse> findById(@PathVariable Long id) {
         var response = clienteService.findById(id);
         return ResponseEntity.ok().body(response);
+    }
+    @PostMapping
+    public ResponseEntity<ClientResponse> insert(@RequestBody ClientRequest clientRequest) {
+        var response = clienteService.insert(clientRequest);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(response.getId()).toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
 }

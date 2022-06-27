@@ -1,6 +1,8 @@
 package com.evandro.client.services;
 
+import com.evandro.client.dto.ClientRequest;
 import com.evandro.client.dto.ClientResponse;
+import com.evandro.client.entities.Client;
 import com.evandro.client.exceptions.ResourceNotFoundException;
 import com.evandro.client.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +25,17 @@ public class ClienteService {
     public ClientResponse findById(Long id) {
         var response = clientRepository.findById(id);
         return new ClientResponse(response.orElseThrow(() -> new ResourceNotFoundException("Entity not found")));
+    }
+    @Transactional
+    public ClientResponse insert(ClientRequest clientRequest) {
+        Client client = Client.builder()
+                .name(clientRequest.getName())
+                .cpf(clientRequest.getCpf())
+                .income(clientRequest.getIncome())
+                .birthDate(clientRequest.getBirthDate())
+                .children(clientRequest.getChildren())
+                .build();
+        var response = clientRepository.save(client);
+        return new ClientResponse(response);
     }
 }
