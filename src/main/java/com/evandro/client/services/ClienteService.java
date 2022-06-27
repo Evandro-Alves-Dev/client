@@ -3,9 +3,12 @@ package com.evandro.client.services;
 import com.evandro.client.dto.ClientRequest;
 import com.evandro.client.dto.ClientResponse;
 import com.evandro.client.entities.Client;
+import com.evandro.client.exceptions.DataBaseException;
 import com.evandro.client.exceptions.ResourceNotFoundException;
 import com.evandro.client.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -55,6 +58,17 @@ public class ClienteService {
             return new ClientResponse(entity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id not found " + id);
+        }
+    }
+
+    @Transactional
+    public void delete (Long id) {
+        try {
+            clientRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("Id not found " + id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataBaseException("Integrity violation");
         }
     }
 }
