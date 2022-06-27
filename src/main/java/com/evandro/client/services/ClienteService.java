@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
+
 @Service
 public class ClienteService {
 
@@ -24,7 +26,7 @@ public class ClienteService {
     @Transactional(readOnly = true)
     public ClientResponse findById(Long id) {
         var response = clientRepository.findById(id);
-        return new ClientResponse(response.orElseThrow(() -> new ResourceNotFoundException("Entity not found")));
+        return new ClientResponse(response.orElseThrow(() -> new ResourceNotFoundException("Entity not found " + id)));
     }
     @Transactional
     public ClientResponse insert(ClientRequest clientRequest) {
@@ -37,5 +39,22 @@ public class ClienteService {
                 .build();
         var response = clientRepository.save(client);
         return new ClientResponse(response);
+    }
+    @Transactional
+    public ClientResponse update(Long id, ClientRequest clientRequest) {
+        try {
+            var entity = clientRepository.getById(id);
+            entity = Client.builder()
+                .name(clientRequest.getName())
+                .cpf(clientRequest.getCpf())
+                .income(clientRequest.getIncome())
+                .birthDate(clientRequest.getBirthDate())
+                .children(clientRequest.getChildren())
+                .build();
+            entity = clientRepository.save(entity);
+            return new ClientResponse(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Id not found " + id);
+        }
     }
 }
